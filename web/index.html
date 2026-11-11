@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Folio PDF Editor</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/app.css">
+  <script>
+    try { const t = localStorage.getItem('folio.theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+<div id="app" class="no-doc">
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <span class="brand-name">Folio</span>
+    </div>
+    <div class="file-chip doc-only">
+      <i data-icon="file"></i>
+      <input id="fileName" spellcheck="false" aria-label="File name">
+      <span class="dirty-dot" title="Unsaved changes"></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="tb-group doc-only">
+      <button class="icon-btn" id="undoBtn" data-icon="undo" data-tip="Undo  Ctrl+Z"></button>
+      <button class="icon-btn" id="redoBtn" data-icon="redo" data-tip="Redo  Ctrl+Y"></button>
+    </div>
+    <span class="tb-sep doc-only"></span>
+    <button class="icon-btn doc-only" id="searchBtn" data-icon="search" data-tip="Find text  Ctrl+F"></button>
+    <button class="icon-btn" id="themeBtn" data-icon="moon" data-tip="Light / dark"></button>
+    <button class="icon-btn" id="helpBtn" data-icon="keyboard" data-tip="Keyboard shortcuts"></button>
+    <button class="btn btn-ghost" id="openBtn"><i data-icon="folder"></i><span>Open</span></button>
+    <div class="split-btn doc-only">
+      <button class="btn btn-primary" id="downloadBtn"><i data-icon="download"></i><span>Download</span></button>
+      <button class="btn btn-primary split-caret" id="downloadMenuBtn" data-icon="chevron-down" aria-label="More save options"></button>
+    </div>
+  </header>
+
+  <nav class="toolbar doc-only" id="toolbar" aria-label="Tools"></nav>
+  <div class="propbar doc-only" id="propbar"></div>
+
+  <main class="workspace">
+    <aside class="sidebar doc-only" id="sidebar">
+      <div class="sb-head">
+        <span class="sb-title">Pages</span>
+        <span class="sb-count" id="pageCount"></span>
+        <div class="spacer"></div>
+        <button class="icon-btn sm" id="sbMenuBtn" data-icon="more" data-tip="Page actions"></button>
+      </div>
+      <div class="sb-selbar" id="sbSelbar" hidden>
+        <span id="sbSelCount"></span>
+        <div class="spacer"></div>
+        <button class="icon-btn sm" data-act="rotl" data-icon="rotate-ccw" data-tip="Rotate left"></button>
+        <button class="icon-btn sm" data-act="rotr" data-icon="rotate-cw" data-tip="Rotate right"></button>
+        <button class="icon-btn sm" data-act="extract" data-icon="file-out" data-tip="Extract to new PDF"></button>
+        <button class="icon-btn sm danger" data-act="delete" data-icon="trash" data-tip="Delete pages"></button>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+      <div class="sb-foot">
+        <button class="btn btn-soft sm" id="addBlankBtn"><i data-icon="plus"></i>Blank page</button>
+        <button class="btn btn-soft sm" id="insertPdfBtn"><i data-icon="file-plus"></i>Insert file</button>
+      </div>
+    </aside>
+
+    <section class="viewer-wrap">
+      <div class="viewer" id="viewer"><div class="pages" id="pages"></div></div>
+
+      <div class="pill doc-only" id="pill">
+        <button class="icon-btn sm" id="sbToggle" data-icon="sidebar" data-tip="Toggle pages panel"></button>
+        <span class="pill-sep"></span>
+        <button class="icon-btn sm" id="prevPage" data-icon="chevron-up" data-tip="Previous page"></button>
+        <span class="page-ind"><input id="pageInput" inputmode="numeric" aria-label="Page"><span>/</span><span id="pageTotal">0</span></span>
+        <button class="icon-btn sm" id="nextPage" data-icon="chevron-down" data-tip="Next page"></button>
+        <span class="pill-sep"></span>
+        <button class="icon-btn sm" id="zoomOut" data-icon="minus" data-tip="Zoom out  Ctrl −"></button>
+        <button class="zoom-val" id="zoomVal" data-tip="Zoom presets">100%</button>
+        <button class="icon-btn sm" id="zoomIn" data-icon="plus" data-tip="Zoom in  Ctrl +"></button>
+        <span class="pill-sep"></span>
+        <button class="icon-btn sm" id="fitWidth" data-icon="fit-width" data-tip="Fit width"></button>
+        <button class="icon-btn sm" id="fitPage" data-icon="fit-page" data-tip="Fit page"></button>
+      </div>
+
+      <div class="searchbox" id="searchbox" hidden>
+        <i data-icon="search"></i>
+        <input id="searchInput" placeholder="Find in document" spellcheck="false">
+        <span class="search-count" id="searchCount"></span>
+        <button class="icon-btn sm" id="searchPrev" data-icon="chevron-up" data-tip="Previous  Shift+Enter"></button>
+        <button class="icon-btn sm" id="searchNext" data-icon="chevron-down" data-tip="Next  Enter"></button>
+        <button class="icon-btn sm" id="searchClose" data-icon="x" data-tip="Close  Esc"></button>
+      </div>
+
+      <div class="empty" id="empty">
+        <div class="empty-card" id="dropZone">
+          <div class="empty-art" aria-hidden="true">
+            <div class="sheet s1"></div><div class="sheet s2"></div>
+            <div class="sheet s3"><i data-icon="upload"></i></div>
+          </div>
+          <h1>Edit any PDF, free</h1>
+          <p>Drop a PDF here, or choose a file to start editing. Everything stays on this computer.</p>
+          <button class="btn btn-primary lg" id="emptyOpenBtn"><i data-icon="folder"></i>Choose a PDF</button>
+          <div class="feature-chips">
+            <span><i data-icon="edit-text"></i>Edit existing text</span>
+            <span><i data-icon="text"></i>Add text in any font</span>
+            <span><i data-icon="signature"></i>Sign</span>
+            <span><i data-icon="highlight"></i>Highlight &amp; comment</span>
+            <span><i data-icon="draw"></i>Draw &amp; shapes</span>
+            <span><i data-icon="image"></i>Images</span>
+            <span><i data-icon="pages"></i>Organize pages</span>
+            <span><i data-icon="form"></i>Fill forms</span>
+            <span><i data-icon="lock"></i>Password protect</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<input type="file" id="fileInput" accept="application/pdf,.pdf,image/png,image/jpeg" hidden>
+<input type="file" id="insertInput" accept="application/pdf,.pdf,image/png,image/jpeg" multiple hidden>
+<input type="file" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp" hidden>
+<div id="toasts" aria-live="polite"></div>
+<div id="dropOverlay"><div class="drop-inner"><i data-icon="upload"></i><span>Drop to open</span></div></div>
+<div id="tooltip" role="tooltip"></div>
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>
